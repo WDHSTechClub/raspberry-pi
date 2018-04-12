@@ -7,6 +7,7 @@
 #7 Repeat Steps 2 - 6 Until Time Reached
 
 import csv
+from arrays import *
 
 # Constants
 dLim = 2
@@ -17,12 +18,11 @@ outputTorque = 6.9
 dragCoefficent = .3
 frontal = .56
 airDensity = 1.225
-rpm = 2000
 forceTotal = 10
 clutchSlip = 1.0
-drivenWheelCir = 1.76 
+drivenWheelCir = 1.76
 
-def simulate_run(until, step):
+def simulate_run(until, step, throttle):
     
     fname = "run_" + str('%.3f' % step).split('.')[1] + "ms.txt"
     
@@ -33,6 +33,7 @@ def simulate_run(until, step):
     velSprint = 0
     distSprint = 0	
     clutchSprint = 0
+    rpm = 2000
     timeSum = 0
     lockup = False
 
@@ -58,7 +59,11 @@ def simulate_run(until, step):
 		
 		# for slip < 0 we need to look up engine speeed using the clutchSpeed. Look up outputTorque == engine torque.   
 		# if lockup == true or
-		# look up the table. 
+		# look up the table.
+        if (lockup == True or slip <= 0):
+            lockup = True
+            
+            rpm = clutchSpeed
 		
     # Finally
     with open('runs/' + fname, 'w') as csvfile:
@@ -68,6 +73,6 @@ def simulate_run(until, step):
         for iteration in output:
             filewriter.writerow(iteration)
             
-simulate_run(100, .5)
-simulate_run(100, .25)
-simulate_run(100, .05)
+simulate_run(100, .5, 1)
+simulate_run(100, .25, 1)
+simulate_run(100, .05, 1)

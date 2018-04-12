@@ -33,7 +33,8 @@ def simulate_run(until, step):
     velSprint = 0
     distSprint = 0	
     clutchSprint = 0
-    timeSum = 0 ; lockup = False
+    timeSum = 0
+    lockup = False
 
     # Main Loop
     for x in range(0, (int)(until * (1 / step) + 1)):
@@ -51,7 +52,8 @@ def simulate_run(until, step):
         
         # Iterate Variables
         velSprint = velSpeed
-        distSprint = dist; clutchSprint = clutchSpeed
+        distSprint = dist
+        clutchSprint = clutchSpeed
         timeSum += step
 		
 		# for slip < 0 we need to look up engine speeed using the clutchSpeed. Look up outputTorque == engine torque.   

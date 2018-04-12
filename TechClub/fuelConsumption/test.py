@@ -72,7 +72,29 @@ def simulate_run(until, step, throttle):
         filewriter.writerow(["Time Step", "Kart Accel", "Vehicle Speed", "Total Distance", "Clutch Slip"])
         for iteration in output:
             filewriter.writerow(iteration)
-            
+
+# Get Torque
+def getTorque(rpm, throttle):
+    rString = str(rpm)
+    if (rString.index("00") == 2):
+        remain = int(rString[2:3])
+        gets = int(rString[0:1])
+        t1 = findTorque(gets, throttle) * (100 - remain / 100)
+        t2 = findTorque(gets + 1, throttle) * (remain / 100)
+        return t1 + t2
+    else:
+        return findTorque(rpm / 100, throttle)
+
+def findTorque(msbRPM, throttle):
+    # msbRPM = rpm / 100
+    
+    # Get Throttle Row
+    index = msbRPM - 14
+    arrayName = "t" + str(throttle) + "throttleArray"
+    cmd = arrayName + "[" index + "][0]"
+    torque = exec(cmd)
+    return torque
+    
 simulate_run(100, .5, 1)
 simulate_run(100, .25, 1)
 simulate_run(100, .05, 1)

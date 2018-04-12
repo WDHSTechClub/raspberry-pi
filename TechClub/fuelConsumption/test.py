@@ -33,7 +33,7 @@ def simulate_run(until, step):
     velSprint = 0
     distSprint = 0	
     clutchSprint = 0
-    timeSum = 0 ; lockup = false
+    timeSum = 0 ; lockup = False
 
     # Main Loop
     for x in range(0, (int)(until * (1 / step) + 1)):

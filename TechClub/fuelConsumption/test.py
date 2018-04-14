@@ -76,25 +76,35 @@ def simulate_run(until, step, throttle):
 # Get Torque
 def getTorque(rpm, throttle):
     rString = str(rpm)
-    if (rString.index("00") == 2):
-        remain = int(rString[2:3])
-        gets = int(rString[0:1])
-        t1 = findTorque(gets, throttle) * (100 - remain / 100)
-        t2 = findTorque(gets + 1, throttle) * (remain / 100)
-        return t1 + t2
-    else:
+    try:
+        test = (rString.index("00") != 2)
         return findTorque(rpm / 100, throttle)
+    except:
+        remain = int(rString[2:4])
+        gets = int(rString[0:2])
+        print("remain: " + str(remain) + " gets: " + str(gets))
+
+        t1 = findTorque(gets, throttle) * (float(100 - remain) / 100)
+        t2 = findTorque(gets + 1, throttle) * (float(remain) / 100)
+        return t1 + t2
 
 def findTorque(msbRPM, throttle):
     # msbRPM = rpm / 100
     
     # Get Throttle Row
     index = msbRPM - 14
+    print("msbRPM: " + str(msbRPM))
+    print("index: " + str(index))
     arrayName = "t" + str(throttle) + "throttleArray"
-    cmd = arrayName + "[" index + "][0]"
-    torque = exec(cmd)
+    cmd = str(arrayName + "[" + str(index) + "][0]")
+    torque = eval(cmd)
+    print("torque: " + str(torque))
     return torque
     
-simulate_run(100, .5, 1)
-simulate_run(100, .25, 1)
-simulate_run(100, .05, 1)
+# simulate_run(100, .5, 1)
+# simulate_run(100, .25, 1)
+# simulate_run(100, .05, 1)
+print("1400rpm @ 100% throttle")
+print("finalTorque: " + str(getTorque(1400, 100)))
+print("\n1475rpm @ 100% throttle")
+print("finalTorque: " + str(getTorque(1475, 100)))

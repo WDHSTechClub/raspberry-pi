@@ -82,7 +82,6 @@ def getTorque(rpm, throttle):
     except:
         remain = int(rString[2:4])
         gets = int(rString[0:2])
-        print("remain: " + str(remain) + " gets: " + str(gets))
 
         t1 = findTorque(gets, throttle) * (float(100 - remain) / 100)
         t2 = findTorque(gets + 1, throttle) * (float(remain) / 100)
@@ -93,12 +92,9 @@ def findTorque(msbRPM, throttle):
     
     # Get Throttle Row
     index = msbRPM - 14
-    print("msbRPM: " + str(msbRPM))
-    print("index: " + str(index))
     arrayName = "t" + str(throttle) + "throttleArray"
     cmd = str(arrayName + "[" + str(index) + "][0]")
     torque = eval(cmd)
-    print("torque: " + str(torque))
     return torque
     
 # simulate_run(100, .5, 1)

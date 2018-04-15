@@ -6,8 +6,11 @@
 #6 Delta Time
 #7 Repeat Steps 2 - 6 Until Time Reached
 
+
 import csv
+import math
 from arrays import *
+
 
 # Constants
 dLim = 2
@@ -20,8 +23,16 @@ frontal = .56
 airDensity = 1.225
 forceTotal = 10
 clutchSlip = 1.0
-drivenWheelCir = 1.76
+drivenWheelCir = math.pi * wheelDia
 
+
+"""
+    Method to simulate a Go-Kart run
+    
+    until:    time to go until
+    step:     time step (increment)
+    throttle: throttle percentage divisible by 10
+"""
 def simulate_run(until, step, throttle):
     
     fname = "run_" + str('%.3f' % step).split('.')[1] + "ms.txt"
@@ -48,15 +59,6 @@ def simulate_run(until, step, throttle):
         clutchSpeed = velSpeed * 60 * spRatio / drivenWheelCir 
         slip = (rpm - clutchSprint) / rpm
 		
-        # Output
-        output.append([round(timeSum, dLim), round(kAccel, dLim), round(velSpeed, dLim), round(dist, dLim), round(slip, dLim)])
-        
-        # Iterate Variables
-        velSprint = velSpeed
-        distSprint = dist
-        clutchSprint = clutchSpeed
-        timeSum += step
-		
 		# for slip < 0 we need to look up engine speeed using the clutchSpeed. Look up outputTorque == engine torque.   
 		# if lockup == true or
 		# look up the table.
@@ -64,6 +66,19 @@ def simulate_run(until, step, throttle):
             lockup = True
             
             rpm = clutchSpeed
+            
+            # Lookup torque value
+            torque = getTorque(rpm, throttle)
+       
+        # Output
+        output.append([round(timeSum, dLim), round(kAccel, dLim), round(velSpeed, dLim), round(dist, dLim), round(slip, dLim)])
+        
+        # Iterate Variables
+        velSprint = velSpeed
+        distSprint = dist
+
+        clutchSprint = clutchSpeed
+        timeSum += step
 		
     # Finally
     with open('runs/' + fname, 'w') as csvfile:
@@ -73,34 +88,77 @@ def simulate_run(until, step, throttle):
         for iteration in output:
             filewriter.writerow(iteration)
 
-# Get Torque
+
+"""
+    Method to get torque
+    
+    rpm:      between 1400 and 3600
+    throttle: percentage divisible by 10
+"""
 def getTorque(rpm, throttle):
-    rString = str(rpm)
-    try:
-        test = (rString.index("00") != 2)
-        return findTorque(rpm / 100, throttle)
-    except:
-        remain = int(rString[2:4])
-        gets = int(rString[0:2])
 
-        t1 = findTorque(gets, throttle) * (float(100 - remain) / 100)
-        t2 = findTorque(gets + 1, throttle) * (float(remain) / 100)
-        return t1 + t2
+    # Ensure RPM is between 1400 and 3600
+    if (rpm >= 1400 and rpm <= 3600):
+        
+        # Parse RPM as a string and strip decimal values
+        rString = str(int(rpm))
+        try:
+            # Only executes if no errors finding the "00" in rString
+            test = (rString.index("00") != 2)
+            
+            # Gets torque at rpm if rpm is divisible by 100
+            return findTorque(rpm / 100, throttle)
+            
+        except:
+            # The first two digits of RPM (used for torque lookup)
+            gets = int(rString[0:2])
+            
+            # The last two digits of RPM (used for weighting torque multiplcation)
+            remain = int(rString[2:4])
 
+            # Find and weight the two torque values
+            t1 = findTorque(gets, throttle) * (float(100 - remain) / 100)
+            t2 = findTorque(gets + 1, throttle) * (float(remain) / 100)
+            
+            # Return the sum of weighted torques
+            return t1 + t2
+
+
+"""
+    Lookup method to find torques in arrays.py
+    
+    msbRPM:   two-digit rpm (rpm / 100)
+    thorttle: throttle percentage divisble by 10
+"""
 def findTorque(msbRPM, throttle):
     # msbRPM = rpm / 100
     
-    # Get Throttle Row
+    # Get Throttle Row based on RPM
     index = msbRPM - 14
+    
+    # Define array name to retrieve torque from based on throttle
     arrayName = "t" + str(throttle) + "throttleArray"
+    
+    # Get torque at certain throttle and RPM
     cmd = str(arrayName + "[" + str(index) + "][0]")
     torque = eval(cmd)
     return torque
-    
-# simulate_run(100, .5, 1)
-# simulate_run(100, .25, 1)
-# simulate_run(100, .05, 1)
-print("1400rpm @ 100% throttle")
-print("finalTorque: " + str(getTorque(1400, 100)))
-print("\n1475rpm @ 100% throttle")
-print("finalTorque: " + str(getTorque(1475, 100)))
+
+
+"""
+    Simulate Go-Kart Runs
+    Generate CSV Files in runs folder
+"""
+simulate_run(100, .5, 100)
+simulate_run(100, .25, 100)
+simulate_run(100, .05, 100)
+
+
+"""
+    Testing for getTorque() and findTorque() functions
+    (No longer needed)
+"""
+# print("1400rpm @ 100% throttle")
+# print("finalTorque: " + str(getTorque(1400, 100)))
+# print("\n1475rpm @ 100% throttle")
+# print("finalTorque: " + str(getTorque(1475, 100)))

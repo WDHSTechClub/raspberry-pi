@@ -33,60 +33,64 @@ drivenWheelCir = math.pi * wheelDia
     step:     time step (increment)
     throttle: throttle percentage divisible by 10
 """
-def simulate_run(until, step, throttle):
-    
-    fname = "run_" + str('%.3f' % step).split('.')[1] + "ms.txt"
-    
-    #Starting Values
-    drag = 0
-    output = []
-    dist = 0
-    velSprint = 0
-    distSprint = 0	
-    clutchSprint = 0
-    rpm = 2000
-    timeSum = 0
-    lockup = False
-
-    # Main Loop
-    for x in range(0, (int)(until * (1 / step) + 1)):
+def simulate_run(until:int, step:float, throttle:int)->bool:
         
-        # Calculated
-        kAccel = (((outputTorque * spRatio * 2) / wheelDia) - forceTotal - drag) / kMass # mph
-        velSpeed = velSprint + kAccel * step # meters / second
-        dist += velSpeed * step # meters
-        drag = (velSpeed ** 2) * airDensity * dragCoefficent * frontal / 2 # Drag Coefficient
-        clutchSpeed = velSpeed * 60 * spRatio / drivenWheelCir 
-        slip = (rpm - clutchSprint) / rpm
-		
-		# for slip < 0 we need to look up engine speeed using the clutchSpeed. Look up outputTorque == engine torque.   
-		# if lockup == true or
-		# look up the table.
-        if (lockup == True or slip <= 0):
-            lockup = True
-            
-            rpm = clutchSpeed
-            
-            # Lookup torque value
-            torque = getTorque(rpm, throttle)
-       
-        # Output
-        output.append([round(timeSum, dLim), round(kAccel, dLim), round(velSpeed, dLim), round(dist, dLim), round(slip, dLim)])
+    try:
+        fname = "run_" + str('%.3f' % step).split('.')[1] + "ms.txt"
         
-        # Iterate Variables
-        velSprint = velSpeed
-        distSprint = dist
+        #Starting Values
+        drag = 0
+        output = []
+        dist = 0
+        velSprint = 0
+        distSprint = 0	
+        clutchSprint = 0
+        rpm = 2000
+        timeSum = 0
+        lockup = False
 
-        clutchSprint = clutchSpeed
-        timeSum += step
-		
-    # Finally
-    with open('runs/' + fname, 'w') as csvfile:
-        filewriter = csv.writer(csvfile, delimiter=',',
-                                quotechar='|', quoting=csv.QUOTE_MINIMAL)
-        filewriter.writerow(["Time Step", "Kart Accel", "Vehicle Speed", "Total Distance", "Clutch Slip"])
-        for iteration in output:
-            filewriter.writerow(iteration)
+        # Main Loop
+        for x in range(0, (int)(until * (1 / step) + 1)):
+            
+            # Calculated
+            kAccel = (((outputTorque * spRatio * 2) / wheelDia) - forceTotal - drag) / kMass # mph
+            velSpeed = velSprint + kAccel * step # meters / second
+            dist += velSpeed * step # meters
+            drag = (velSpeed ** 2) * airDensity * dragCoefficent * frontal / 2 # Drag Coefficient
+            clutchSpeed = velSpeed * 60 * spRatio / drivenWheelCir 
+            slip = (rpm - clutchSprint) / rpm
+		    
+		    # for slip < 0 we need to look up engine speeed using the clutchSpeed. Look up outputTorque == engine torque.   
+		    # if lockup == true or
+		    # look up the table.
+            if (lockup == True or slip <= 0):
+                lockup = True
+                
+                rpm = clutchSpeed
+                
+                # Lookup torque value
+                torque = getTorque(rpm, throttle)
+           
+            # Output
+            output.append([round(timeSum, dLim), round(kAccel, dLim), round(velSpeed, dLim), round(dist, dLim), round(slip, dLim)])
+            
+            # Iterate Variables
+            velSprint = velSpeed
+            distSprint = dist
+
+            clutchSprint = clutchSpeed
+            timeSum += step
+		    
+        # Finally
+        with open('runs/' + fname, 'w') as csvfile:
+            filewriter = csv.writer(csvfile, delimiter=',',
+                                    quotechar='|', quoting=csv.QUOTE_MINIMAL)
+            filewriter.writerow(["Time Step", "Kart Accel", "Vehicle Speed", "Total Distance", "Clutch Slip"])
+            for iteration in output:
+                filewriter.writerow(iteration)
+        return true
+    catch:
+        return false
 
 
 """
@@ -95,7 +99,7 @@ def simulate_run(until, step, throttle):
     rpm:      between 1400 and 3600
     throttle: percentage divisible by 10
 """
-def getTorque(rpm, throttle):
+def getTorque(rpm:int, throttle:int)->float:
 
     # Ensure RPM is between 1400 and 3600
     if (rpm >= 1400 and rpm <= 3600):
@@ -130,7 +134,7 @@ def getTorque(rpm, throttle):
     msbRPM:   two-digit rpm (rpm / 100)
     thorttle: throttle percentage divisble by 10
 """
-def findTorque(msbRPM, throttle):
+def findTorque(msbRPM:int, throttle:int)->float:
     # msbRPM = rpm / 100
     
     # Get Throttle Row based on RPM

@@ -88,9 +88,9 @@ def simulate_run(until:int, step:float, throttle:int)->bool:
             filewriter.writerow(["Time Step", "Kart Accel", "Vehicle Speed", "Total Distance", "Clutch Slip"])
             for iteration in output:
                 filewriter.writerow(iteration)
-        return true
-    catch:
-        return false
+        return True
+    except:
+        return False
 
 
 """
@@ -153,9 +153,9 @@ def findTorque(msbRPM:int, throttle:int)->float:
     Simulate Go-Kart Runs
     Generate CSV Files in runs folder
 """
-simulate_run(100, .5, 100)
-simulate_run(100, .25, 100)
-simulate_run(100, .05, 100)
+print(simulate_run(100, .5, 100))
+print(simulate_run(100, .25, 100))
+print(simulate_run(100, .05, 100))
 
 
 """

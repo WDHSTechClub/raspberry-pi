@@ -137,16 +137,20 @@ def getTorque(rpm:int, throttle:int)->float:
 def findTorque(msbRPM:int, throttle:int)->float:
     # msbRPM = rpm / 100
     
-    # Get Throttle Row based on RPM
-    index = msbRPM - 14
+    # Validate RPM Value
+    if (msbRPM >= 14 and msbRPM <= 36):
+        # Get Throttle Row based on RPM
+        index = int(msbRPM - 14)
     
-    # Define array name to retrieve torque from based on throttle
-    arrayName = "t" + str(throttle) + "throttleArray"
+        # Validate Throttle Value to reduce chance of error
+        if ((throttle % 10 == 0) and (throttle > 0 and throttle <= 100)):
+            # Define array name to retrieve torque from based on throttle
+            arrayName = str("t" + str(int(throttle)) + "throttleArray")
     
-    # Get torque at certain throttle and RPM
-    cmd = str(arrayName + "[" + str(index) + "][0]")
-    torque = eval(cmd)
-    return torque
+            # Get torque at certain throttle and RPM
+            cmd = str(arrayName + "[" + str(index) + "][0]")
+            torque = eval(cmd)
+            return torque
 
 
 """

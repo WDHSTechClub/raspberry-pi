@@ -79,7 +79,7 @@ class SimulateRun:
                     torque = self._getTorque(rpm, throttle)
 
                 # Output
-                output.append([round(timeSum, dLim), round(kAccel, dLim), round(velSpeed, dLim), round(dist, dLim), round(slip, dLim)])
+                output.append([round(timeSum, self._dLim), round(kAccel, self._dLim), round(velSpeed, self._dLim), round(dist, self._dLim), round(slip, self._dLim)])
 
                 # Iterate Variables
                 velSprint = velSpeed

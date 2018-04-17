@@ -1,3 +1,0 @@
-timestep- breaking track down into slices for more accuracy
-Joules (energy) = Kilogram(Force) * mass / seconds
-Joules (energy) = Newtons * mass

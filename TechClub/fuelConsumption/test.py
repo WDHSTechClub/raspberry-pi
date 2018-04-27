@@ -175,6 +175,6 @@ print(s.simulate_run(100, .05, 100))
     (No longer needed)
 """
 # print("1400rpm @ 100% throttle")
-# print("finalTorque: " + str(getTorque(1400, 100)))
+# print("finalTorque: " + str(s.getTorque(1400, 100)))
 # print("\n1475rpm @ 100% throttle")
-# print("finalTorque: " + str(getTorque(1475, 100)))
+# print("finalTorque: " + str(s.getTorque(1475, 100)))

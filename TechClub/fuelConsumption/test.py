@@ -9,6 +9,7 @@
 
 import csv
 import math
+import sys
 from arrays import *
 
 class SimulateRun:
@@ -34,6 +35,7 @@ class SimulateRun:
         self._clutchSlip = 1.0
         self._drivenWheelCir = math.pi * self._wheelDia
 
+    @classmethod
     def simulate_run(self, until:int, step:float, throttle:int)->bool:
         """
             Method to simulate a Go-Kart run
@@ -44,69 +46,67 @@ class SimulateRun:
         """
 
         if (type(until) != int or type(step) != float or type(throttle) != int):
-            return TypeError
+            raise TypeError('parameters must be integer, float, integer!')
         else:
-            try:
-                fname = "run_" + str('%.3f' % step).split('.')[1] + "ms.txt"
+            fname = "run_" + str('%.3f' % step).split('.')[1] + "ms.txt"
 
-                #Starting Values
-                drag = 0
-                output = []
-                dist = 0
-                velSprint = 0
-                distSprint = 0	
-                clutchSprint = 0
-                rpm = 2000
-                timeSum = 0
-                lockup = False
-
-                # Main Loop
-                for x in range(0, (int)(until * (1 / step) + 1)):
-
-                    # Calculated
-                    kAccel = (((self._outputTorque * self._spRatio * 2) / self._wheelDia) - self._forceTotal - drag) / self._kMass # mph
-                    velSpeed = velSprint + kAccel * step # meters / second
-                    dist += velSpeed * step # meters
-                    drag = (velSpeed ** 2) * self._airDensity * self._dragCoefficent * self._frontal / 2 # Drag Coefficient
-                    clutchSpeed = velSpeed * 60 * self._spRatio / self._drivenWheelCir 
-                    slip = (rpm - clutchSprint) / rpm
-
-                    # for slip < 0 we need to look up engine speeed using the clutchSpeed. Look up outputTorque == engine torque.   
-                    # if lockup == true or
-                    # look up the table.
-                    if (lockup == True or slip <= 0):
-                        lockup = True
-
-                        rpm = clutchSpeed
-
-                        # Lookup torque value
-                        torque = self._calcTorque(int(rpm), throttle)
-                        # print([int(rpm), throttle])
-                        # print(self._calcTorque(int(rpm), throttle))
-                        # print("sys torque: " + str(torque))
+            #Starting Values
+            drag = 0
+            output = []
+            dist = 0
+            velSprint = 0
+            distSprint = 0	
+            clutchSprint = 0
+            rpm = 2000
+            timeSum = 0
 
 
-                    # Output
-                    output.append([round(timeSum, self._dLim), round(kAccel, self._dLim), round(velSpeed, self._dLim), round(dist, self._dLim), round(slip, self._dLim)])
+            # Main Loop
+            for x in range(0, (int)(until * (1 / step) + 1)):
 
-                    # Iterate Variables
-                    velSprint = velSpeed
-                    distSprint = dist
+                # Calculated
+                kAccel = (((self._outputTorque * self._spRatio * 2) / self._wheelDia) - self._forceTotal - drag) / self._kMass # mph
+                velSpeed = velSprint + kAccel * step # meters / second
+                dist += velSpeed * step # meters
+                drag = (velSpeed ** 2) * self._airDensity * self._dragCoefficent * self._frontal / 2 # Drag Coefficient
+                clutchSpeed = velSpeed * 60 * self._spRatio / self._drivenWheelCir 
+                slip = (rpm - clutchSprint) / rpm
 
-                    clutchSprint = clutchSpeed
-                    timeSum += step
+                # for slip < 0 we need to look up engine speeed using the clutchSpeed. Look up outputTorque == engine torque.   
+                # if lockup == true or
+                # look up the table.
+                if (lockup == True or slip <= 0):
+                    lockup = True
 
-                # Finally
-                with open('runs/' + fname, 'w') as csvfile:
-                    filewriter = csv.writer(csvfile, delimiter=',',
-                                            quotechar='|', quoting=csv.QUOTE_MINIMAL)
-                    filewriter.writerow(["Time Step", "Kart Accel", "Vehicle Speed", "Total Distance", "Clutch Slip"])
-                    for iteration in output:
-                        filewriter.writerow(iteration)
-                return True
-            except:
-                return False
+                    rpm = clutchSpeed
 
+                    # Lookup torque value
+                    torque = self._calcTorque(int(rpm), throttle)
+                    # print([int(rpm), throttle])
+                    # print(self._calcTorque(int(rpm), throttle))
+                    # print("sys torque: " + str(torque))
+
+
+                # Output
+                output.append([round(timeSum, self._dLim), round(kAccel, self._dLim), round(velSpeed, self._dLim), round(dist, self._dLim), round(slip, self._dLim)])
+
+                # Iterate Variables
+                velSprint = velSpeed
+                distSprint = dist
+
+                clutchSprint = clutchSpeed
+                timeSum += step
+
+            # Finally
+            with open('runs/' + fname, 'w') as csvfile:
+                filewriter = csv.writer(csvfile, delimiter=',',
+                                        quotechar='|', quoting=csv.QUOTE_MINIMAL)
+                filewriter.writerow(["Time Step", "Kart Accel", "Vehicle Speed", "Total Distance", "Clutch Slip"])
+                for iteration in output:
+                    filewriter.writerow(iteration)
+            return True
+
+    @classmethod
     def _calcTorque(self, rpm:int, throttle:int)->float:
         """
             Method to calculate torque
@@ -116,7 +116,7 @@ class SimulateRun:
         """
 
         if ((type(rpm) != int) or (type(throttle) != int)):
-            return TypeError
+            raise TypeError('Both parameters must be integers!')
         else:
             # Ensure RPM is between 1400 and 3600
             if (rpm >= 1400 and rpm <= 3600):
@@ -145,6 +145,7 @@ class SimulateRun:
                     finTorque = t1 + t2
                 return finTorque
 
+    @classmethod
     def _findTorque(self, msbRPM:int, throttle:int)->float:
         """
             Lookup method to find torques in arrays.py
@@ -153,10 +154,11 @@ class SimulateRun:
             thorttle: throttle percentage divisble by 10
         """
         if (type(msbRPM) != int or type(throttle) != int):
-            return TypeError
+            raise TypeError('Both parameters must be integers!')
         else:
             return self.__findTuple(msbRPM, throttle)[0]
 
+    @classmethod
     def _findPower(self, msbRPM:int, throttle:int)->float:
         """
             Lookup method to find powers in arrays.py
@@ -165,10 +167,11 @@ class SimulateRun:
             thorttle: throttle percentage divisble by 10
         """
         if (type(msbRPM) != int or type(throttle) != int):
-            return TypeError
+            raise TypeError('Both parameters must be integers!')
         else:
             return self.__findTuple(msbRPM, throttle)[1]
 
+    @classmethod
     def _findBSFC(self, msbRPM:int, throttle:int)->float:
         """
             Lookup method to find BSFC's in arrays.py
@@ -177,10 +180,11 @@ class SimulateRun:
             thorttle: throttle percentage divisble by 10
         """
         if (type(msbRPM) != int or type(throttle) != int):
-            return TypeError
+            raise TypeError('Both parameters must be integers!')
         else:
             return self.__findTuple(msbRPM, throttle)[3]
 
+    @classmethod
     def __findTuple(self, msbRPM:int, throttle:int)->tuple:
         """
             Lookup method to find tuples in arrays.py
@@ -191,7 +195,7 @@ class SimulateRun:
 
         # msbRPM = rpm / 100
         if (type(msbRPM) != int or type(throttle) != int):
-            return TypeError
+            raise TypeError('Both parameters must be integers!')
         else:
             # Validate RPM Value
             if (msbRPM >= 14 and msbRPM <= 36):

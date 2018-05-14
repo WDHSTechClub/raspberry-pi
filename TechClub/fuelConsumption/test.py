@@ -80,7 +80,11 @@ class SimulateRun:
                         rpm = clutchSpeed
 
                         # Lookup torque value
-                        torque = self._getTorque(rpm, throttle)
+                        torque = self._calcTorque(int(rpm), throttle)
+                        # print([int(rpm), throttle])
+                        # print(self._calcTorque(int(rpm), throttle))
+                        # print("sys torque: " + str(torque))
+
 
                     # Output
                     output.append([round(timeSum, self._dLim), round(kAccel, self._dLim), round(velSpeed, self._dLim), round(dist, self._dLim), round(slip, self._dLim)])
@@ -103,15 +107,15 @@ class SimulateRun:
             except:
                 return False
 
-    def _getTorque(self, rpm:int, throttle:int)->float:
+    def _calcTorque(self, rpm:int, throttle:int)->float:
         """
-            Method to get torque
+            Method to calculate torque
 
             rpm:      between 1400 and 3600
             throttle: percentage divisible by 10
         """
 
-        if (type(rpm) != int or type(throttle) != int):
+        if ((type(rpm) != int) or (type(throttle) != int)):
             return TypeError
         else:
             # Ensure RPM is between 1400 and 3600
@@ -124,7 +128,7 @@ class SimulateRun:
                     test = (rString.index("00") != 2)
 
                     # Gets torque at rpm if rpm is divisible by 100
-                    return self._findTorque(rpm / 100, throttle)
+                    finTorque = self._findTorque(int(rpm / 100), throttle)
 
                 except:
                     # The first two digits of RPM (used for torque lookup)
@@ -138,8 +142,8 @@ class SimulateRun:
                     t2 = self._findTorque(gets + 1, throttle) * (float(remain) / 100)
 
                     # Return the sum of weighted torques
-                    return t1 + t2
-
+                    finTorque = t1 + t2
+                return finTorque
 
     def _findTorque(self, msbRPM:int, throttle:int)->float:
         """
@@ -152,6 +156,30 @@ class SimulateRun:
             return TypeError
         else:
             return self.__findTuple(msbRPM, throttle)[0]
+
+    def _findPower(self, msbRPM:int, throttle:int)->float:
+        """
+            Lookup method to find powers in arrays.py
+
+            msbRPM:   two-digit rpm (rpm / 100)
+            thorttle: throttle percentage divisble by 10
+        """
+        if (type(msbRPM) != int or type(throttle) != int):
+            return TypeError
+        else:
+            return self.__findTuple(msbRPM, throttle)[1]
+
+    def _findBSFC(self, msbRPM:int, throttle:int)->float:
+        """
+            Lookup method to find BSFC's in arrays.py
+
+            msbRPM:   two-digit rpm (rpm / 100)
+            thorttle: throttle percentage divisble by 10
+        """
+        if (type(msbRPM) != int or type(throttle) != int):
+            return TypeError
+        else:
+            return self.__findTuple(msbRPM, throttle)[3]
 
     def __findTuple(self, msbRPM:int, throttle:int)->tuple:
         """

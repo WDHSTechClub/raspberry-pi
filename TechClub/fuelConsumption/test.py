@@ -46,7 +46,7 @@ class SimulateRun:
         """
             Method to simulate a Go-Kart run
 
-            until:    time to go until
+            until:    measure of meters to go
             step:     time step (increment)
             throttle: throttle percentage divisible by 10
         """
@@ -67,7 +67,7 @@ class SimulateRun:
             bsfc = 0
 
             # Main Loop
-            for x in range(0, (int)((until / step) + 1)):
+            while (dist < until):
 
                 # Calculated
                 kAccel = (((self._outputTorque * self._spRatio * 2) / self._wheelDia) - self._forceTotal - drag) / self._kMass # mph

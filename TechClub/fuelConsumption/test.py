@@ -9,7 +9,20 @@
 
 import csv
 import math
+from enum import Enum, unique
 from arrays import *
+
+@unique
+class EngineState(Enum):
+    """
+        Enumeration used for detirmining engine state of the Go-Kart.
+
+        To be used with the SimulateRun class which will include a state variable
+        which will be used to detirmine if the engine is on, off, or on and idle.
+    """
+    OFF = 0
+    ON = 1
+    IDLE = 2
 
 class SimulateRun:
     """
@@ -21,26 +34,64 @@ class SimulateRun:
         Dubuque High School racing team.
     """
     
-    def __init__(self):
+    def __init__(self, vars = {}):
         """
             Contructor Function
             
-            Defines all constants
-            (Will add arguments later)
+            Defines all constants.
+            Takes a dictionary with the
+            { dLim => decimal delimter,
+            spRatio => sprocket ratio,
+            kMass => kart mass,
+            outputTorque => engine output torque (Nm),
+            dragCoefficent => coefficient of drag,
+            frontal => kart frontal area (m^2),
+            airDensity => density of air,
+            forceTotal => total of forces acting on kart,
+            clutchSlip => slip to start at (decimal %),
+            state => engine state (from EngineState enum) }
         """
+
+        if (type(vars) != dict):
+            vars = {}
         
         # Constants
-        self._dLim = 2 # Decimal Delimiter
-        self._spRatio = 85 / 12 # Sprocket Ratio
-        self._kMass = 120 # Kart Mass
-        self._wheelDia = .5588 # Wheel Diameter
-        self._outputTorque = 6.9 # Engine Output Torque (Nm)
-        self._dragCoefficent = .3 # Coefficient of Drag
-        self._frontal = .56 # Kart Frontal Area (m^2)
-        self._airDensity = 1.225 # Air Density (constant)
-        self._forceTotal = 10 # Total of forces acting on kart
-        self._clutchSlip = 1.0 # Clutch slip as percentage
-        self._drivenWheelCir = math.pi * self._wheelDia # Driven Wheel Circumfrance
+        # Decimal Delimiter
+        self._dLim = int(vars.get('dLim', 2))
+        
+        # Sprocket Ratio
+        self._spRatio = float(vars.get('spRatio', 96 / 11))
+        
+        # Kart Mass
+        self._kMass = float(vars.get('kMass', 122.472)) # With 170lb driver
+        # self._kMass = float(vars.get('kMass', 48.9888)) # Kart Mass
+
+        # Wheel Diameter
+        self._wheelDia = float(vars.get('wheelDia', .4826))
+
+        # Engine Output Torque (Nm)
+        self._outputTorque = float(vars.get('outputTorque', 6.9))
+
+        # Coefficient of Drag
+        self._dragCoefficent = float(vars.get('dragCoefficent', .3))
+
+        # Kart Frontal Area (m^2)
+        self._frontal = float(vars.get('frontal', .56))
+
+        # Air Density (constant)
+        self._airDensity = float(vars.get('airDensity', 1.225))
+
+        # Total of forces acting on kart
+        self._forceTotal = float(vars.get('forceTotal', 10))
+
+        # Clutch slip as percentage
+        self._clutchSlip = float(vars.get('clutchSlip', 1.0))
+        
+        # Driven Wheel Circumfrance
+        self._drivenWheelCir = float(vars.get('drivenWheelCir', math.pi * self._wheelDia))
+
+        # Engine State
+        self._state = vars.get('state', EngineState.ON) 
 
     def simulate_run(self, until:int, step:float, throttle:int)->bool:
         """

@@ -116,40 +116,33 @@ class SimulateRun:
             timeSum = 0
             lockup = False
             bsfc = 0
-            torque = self._outputTorque
 
             # Main Loop
             while (dist < until):
 
                 # Calculated
-                print(timeSum, dist)
-                print('kAccel components -', self._outputTorque, drag)
-                kAccel = (((torque * self._spRatio * 2) / self._wheelDia) - self._forceTotal - drag) / self._kMass # mph
-                print('velSpeed components -', velSprint, kAccel, step)
+                kAccel = (((self._outputTorque * self._spRatio * 2) / self._wheelDia) - self._forceTotal - drag) / self._kMass # mph
                 velSpeed = velSprint + kAccel * step # meters / second
                 dist += velSpeed * step # meters
-                print('velSpeed -', velSpeed)
                 drag = (velSpeed ** 2) * self._airDensity * self._dragCoefficent * self._frontal / 2 # Drag Coefficient
                 clutchSpeed = velSpeed * 60 * self._spRatio / self._drivenWheelCir 
                 slip = (rpm - clutchSprint) / rpm
                 deltaBSFC = self._calcBSFC(int(rpm), int(throttle)) * self._calcPower(int(rpm), int(throttle)) * step
                 bsfc += deltaBSFC
 
-                # for slip < 0 we need to look up engine speeed using the clutchSpeed. Look up outputTorque == engine torque.
-                # if lockup == true or slip below 0 look up the table.
+                # for slip < 0 we need to look up engine speeed using the clutchSpeed. Look up outputTorque == engine torque.   
+                # if lockup == true or
+                # look up the table.
                 if (lockup == True or slip <= 0):
                     lockup = True
 
                     rpm = clutchSpeed
-                    
+
                     # Lookup torque value
                     torque = self._calcTorque(rpm, throttle)
-                    print('outputTorque -', self._outputTorque, velSpeed)
-                
-                print('')
-                
+
                 # Output
-                output.append([round(timeSum, self._dLim), round(kAccel, self._dLim), round(velSpeed, self._dLim), round(dist, self._dLim), round(slip, self._dLim), round(bsfc, self._dLim), round(rpm, self._dLim), round(self._outputTorque, self._dLim)])
+                output.append([round(timeSum, self._dLim), round(kAccel, self._dLim), round(velSpeed, self._dLim), round(dist, self._dLim), round(slip, self._dLim), round(bsfc, self._dLim)])
 
                 # Iterate Variables
                 velSprint = velSpeed
@@ -162,7 +155,7 @@ class SimulateRun:
             with open('runs/' + fname, 'w') as csvfile:
                 filewriter = csv.writer(csvfile, delimiter=',',
                                         quotechar='|', quoting=csv.QUOTE_MINIMAL)
-                filewriter.writerow(["Time Step", "Kart Accel", "Vehicle Speed", "Total Distance", "Clutch Slip", "BSFC", "RPM", "Torque"])
+                filewriter.writerow(["Time Step", "Kart Accel", "Vehicle Speed", "Total Distance", "Clutch Slip", "BSFC"])
                 for iteration in output:
                     filewriter.writerow(iteration)
             return True
@@ -314,5 +307,5 @@ class SimulateRun:
 # Generate CSV Files in runs folder
 s = SimulateRun()
 print(s.simulate_run(100, .5, 100))
-#print(s.simulate_run(100, .25, 100))
-#print(s.simulate_run(100, .05, 100))
+print(s.simulate_run(100, .25, 100))
+print(s.simulate_run(100, .05, 100))

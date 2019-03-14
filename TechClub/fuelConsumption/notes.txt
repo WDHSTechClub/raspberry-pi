@@ -1,0 +1,5 @@
+start stopped
+get up to speed
+kill engine
+coast to [5, 6, 7, 8, 9, 10] mph
+compare time to fuel consumption

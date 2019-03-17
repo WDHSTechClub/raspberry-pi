@@ -1,4 +1,4 @@
-start stopped
+start [0, 2.5, 5, 15] mph
 get up to speed
 kill engine
 coast to [5, 6, 7, 8, 9, 10] mph
